@@ -58,7 +58,7 @@ function AddPost() {
 
     const tagList = tags();
 
-    // Funzione per inviare il nuovo post al server (potresti voler fare una chiamata POST)
+    // Funzione per inviare il nuovo post al server 
     const handleFormSubmit = (e) => {
         e.preventDefault();
         axios

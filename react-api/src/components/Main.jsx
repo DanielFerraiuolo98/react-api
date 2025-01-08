@@ -49,14 +49,16 @@ function Main() {
     function handleInput(e) {
         const value =
             e.target.type === "checkbox" ? e.target.checked : e.target.value;
-
         setFormData({ ...formData, [e.target.name]: value });
     }
 
-    function handleSubmit(e) {
+    function handleSubmit(formData) {
         e.preventDefault();
+        axios.post(apiUrl + "/examples", formData).then((res) => {
+            console.log(res.data);
+            setBlog([...blog, res.data]);
+        });
         setBlog([...blog, { id: self.crypto.randomUUID(), ...formData }]);
-        setFormData(newPost);
     }
 
     function handleTags(e) {

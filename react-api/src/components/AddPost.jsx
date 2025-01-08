@@ -1,52 +1,79 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { tags } from "../posts";
+import axios from "axios";
 
 function AddPost() {
-
-    const [formData, setFormData] = useState({
+    const nuovoPost = {
         title: '',
         image: '',
         category: '',
         content: '',
         tags: [],
-        isPublished: false
-    });
+        isPublished: false,
+    };
+
+    const apiUrl = "http://localhost:3000";
+
+    const [formData, setFormData] = useState(nuovoPost);
     const [posts, setPosts] = useState([]);
     const [newPost, setNewPost] = useState(null);
 
+    // Funzione per ottenere i post dal server
+    const getPosts = () => {
+        axios
+            .get(apiUrl + "/examples")
+            .then((res) => {
+                console.log(res.data);
+                setPosts(res.data.data);
+            })
+            .catch((error) => {
+                console.error('Errore nel recupero dei post:', error);
+            });
+    };
+
+    // Recupera i post quando il componente viene montato
+    useEffect(() => {
+        getPosts();
+    }, []);
+
+    // Gestione dell'input del form
     const handleInput = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prevState => ({
+        setFormData((prevState) => ({
             ...prevState,
-            [name]: type === "checkbox" ? checked : value
+            [name]: type === "checkbox" ? checked : value,
         }));
     };
 
+    // Gestione dei tag selezionati
     const handleTags = (e) => {
         const { value, checked } = e.target;
-        setFormData(prevState => {
+        setFormData((prevState) => {
             const newTags = checked
                 ? [...prevState.tags, value]
-                : prevState.tags.filter(tag => tag !== value);
+                : prevState.tags.filter((tag) => tag !== value);
             return { ...prevState, tags: newTags };
         });
     };
 
     const tagList = tags();
+
+    // Funzione per inviare il nuovo post al server (potresti voler fare una chiamata POST)
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        setPosts(prevPosts => [...prevPosts, formData]);
-        setNewPost(formData);
-        setFormData({
-            title: '',
-            image: '',
-            category: '',
-            content: '',
-            tags: [],
-            isPublished: false
-        });
+        axios
+            .post(apiUrl + "/examples", formData) // Invio dei dati al server
+            .then((res) => {
+                setPosts((prevPosts) => [...prevPosts, formData]); // Aggiungi il nuovo post alla lista locale
+                setNewPost(formData); // Imposta il nuovo post per la visualizzazione
+                setFormData(nuovoPost); // Reset del form
+            })
+            .catch((error) => {
+                console.error('Errore nel salvataggio del post:', error);
+            });
     };
 
+    // Funzione per eliminare il nuovo post
     const handleDeletePost = () => {
         setNewPost(null);
     };
@@ -62,7 +89,6 @@ function AddPost() {
                         <p>{newPost.content}</p>
                         <p><strong>Tags:</strong> {newPost.tags.join(", ")}</p>
                         <p><strong>Pubblicato:</strong> {newPost.isPublished ? "Sì" : "No"}</p>
-
                         <button onClick={handleDeletePost} className="btn btn-danger">
                             Elimina questo post
                         </button>

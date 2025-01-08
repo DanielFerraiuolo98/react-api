@@ -56,8 +56,10 @@ function tags() {
 console.log(tags());
 
 function filterItems(items, query) {
-    //query = query.toLowerCase();
-    return items.filter(item => item.title.includes(query));
+    query = query.toLowerCase();
+    return items.filter(item =>
+        item.title && item.title.toLowerCase().includes(query)
+    );
 }
 
 export { posts, tags, filterItems };
